@@ -13,3 +13,17 @@ type ValidateFunc[T any] func(t T) (bool, error)
 func (f ValidateFunc[T]) Validate(t T) (bool, error) {
 	return f(t)
 }
+
+// Valid returns a Validator that always returns true, without any error.
+func Valid[T any]() Validator[T] {
+	return ValidateFunc[T](func(t T) (bool, error) {
+		return true, nil
+	})
+}
+
+// Invalid returns a Validator that always returns false, without any error.
+func Invalid[T any]() Validator[T] {
+	return ValidateFunc[T](func(t T) (bool, error) {
+		return false, nil
+	})
+}
