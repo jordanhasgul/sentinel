@@ -2,6 +2,7 @@ package sentinel
 
 import (
 	"github.com/jordanhasgul/multierr"
+	"github.com/jordanhasgul/sentinel/constraints"
 )
 
 // Validator validates instances of type T.
@@ -96,4 +97,32 @@ func WithValue[T, U any](f func(T) U, v Validator[U]) Validator[T] {
 	return ValidateFunc[T](func(t T) (bool, error) {
 		return v.Validate(f(t))
 	})
+}
+
+// Equal returns a Validator that returns true if t1 == t2, where t1 is an
+// instance of type T.
+func Equal[T constraints.Equated](t2 T) Validator[T] {
+	return ValidateFunc[T](func(t1 T) (bool, error) {
+		return t1 == t2, nil
+	})
+}
+
+// NotEqual returns a Validator that returns true if t1 != t2, where t1 is
+// an instance of type T.
+func NotEqual[T constraints.Equated](t2 T) Validator[T] {
+	return Not(Equal[T](t2))
+}
+
+// EqualFunc returns a Validator that returns true if f(t1, t2) == true,
+// where t1 is an instance of type T.
+func EqualFunc[T any](f func(T, T) bool, t2 T) Validator[T] {
+	return ValidateFunc[T](func(t1 T) (bool, error) {
+		return f(t1, t2), nil
+	})
+}
+
+// NotEqualFunc returns a Validator that returns true if f(t1, t2) != true,
+// where t1 is an instance of type T.
+func NotEqualFunc[T any](f func(T, T) bool, t2 T) Validator[T] {
+	return Not(EqualFunc[T](f, t2))
 }
