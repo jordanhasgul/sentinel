@@ -1,6 +1,7 @@
 package sentinel
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -8,16 +9,14 @@ import (
 
 func TestValid(t *testing.T) {
 	v := Valid[any]()
-	valid, err := v.Validate(nil)
+	valid, _ := v.Validate(nil)
 	require.True(t, valid)
-	require.Nil(t, err)
 }
 
 func TestInvalid(t *testing.T) {
 	v := Invalid[any]()
-	valid, err := v.Validate(nil)
+	valid, _ := v.Validate(nil)
 	require.False(t, valid)
-	require.NotNil(t, err)
 }
 
 func TestNot(t *testing.T) {
@@ -133,6 +132,138 @@ func TestOr(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			got, _ := testCase.v.Validate(nil)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}
+
+func TestEqual(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t1 int
+		t2 int
+	}{
+		{
+			name: "0 equals 0",
+			want: true,
+
+			t1: 0,
+			t2: 0,
+		},
+		{
+			name: "0 equals 1",
+			want: false,
+
+			t1: 0,
+			t2: 1,
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := Equal(testCase.t2)
+
+			got, _ := v.Validate(testCase.t1)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}
+
+func TestNotEqual(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t1 int
+		t2 int
+	}{
+		{
+			name: "0 not equals 0",
+			want: false,
+
+			t1: 0,
+			t2: 0,
+		},
+		{
+			name: "0 not equals 1",
+			want: true,
+
+			t1: 0,
+			t2: 1,
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := NotEqual(testCase.t2)
+
+			got, _ := v.Validate(testCase.t1)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}
+
+func TestEqualFunc(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t1 []byte
+		t2 []byte
+	}{
+		{
+			name: "'test' equals 'test'",
+			want: true,
+
+			t1: []byte("test"),
+			t2: []byte("test"),
+		},
+		{
+			name: "'test' equals 'tset'",
+			want: false,
+
+			t1: []byte("test"),
+			t2: []byte("tset"),
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := EqualFunc(bytes.Equal, testCase.t2)
+
+			got, _ := v.Validate(testCase.t1)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}
+
+func TestNotEqualFunc(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t1 []byte
+		t2 []byte
+	}{
+		{
+			name: "'test' not equals 'test'",
+			want: false,
+
+			t1: []byte("test"),
+			t2: []byte("test"),
+		},
+		{
+			name: "'test' not equals 'tset'",
+			want: true,
+
+			t1: []byte("test"),
+			t2: []byte("tset"),
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := NotEqualFunc(bytes.Equal, testCase.t2)
+
+			got, _ := v.Validate(testCase.t1)
 			require.Equal(t, testCase.want, got)
 		})
 	}
