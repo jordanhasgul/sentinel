@@ -51,9 +51,7 @@ func Not[T any](v Validator[T]) Validator[T] {
 // And returns a Validator that returns true if all the validators in vs
 // return true when validating instances of T.
 func And[T any](vs ...Validator[T]) Validator[T] {
-	if len(vs) == 0 {
-		return Valid[T]()
-	}
+	// todo: what if len(vs) < 2
 
 	return ValidateFunc[T](func(t T) (bool, error) {
 		var e *multierr.Error
@@ -74,9 +72,7 @@ func And[T any](vs ...Validator[T]) Validator[T] {
 // Or returns a Validator that returns true if any of the validators in vs
 // return true when validating instances of T.
 func Or[T any](vs ...Validator[T]) Validator[T] {
-	if len(vs) == 0 {
-		return Valid[T]()
-	}
+	// todo: what if len(vs) < 2
 
 	return ValidateFunc[T](func(t T) (bool, error) {
 		var e *multierr.Error
