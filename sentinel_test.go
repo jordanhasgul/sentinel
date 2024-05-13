@@ -268,3 +268,75 @@ func TestNotEqualFunc(t *testing.T) {
 		})
 	}
 }
+
+func TestNil(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t any
+	}{
+		{
+			name: "non-nillable type",
+			want: false,
+
+			t: 1,
+		},
+		{
+			name: "nillable type non-nil value",
+			want: false,
+
+			t: []int{1},
+		},
+		{
+			name: "nillable type nil value",
+			want: true,
+
+			t: []int(nil),
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := Nil[any]()
+
+			got, _ := v.Validate(testCase.t)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}
+
+func TestNotNil(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t any
+	}{
+		{
+			name: "non-nillable type",
+			want: true,
+
+			t: 1,
+		},
+		{
+			name: "nillable type non-nil value",
+			want: true,
+
+			t: []int{1},
+		},
+		{
+			name: "nillable type nil value",
+			want: false,
+
+			t: []int(nil),
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := NotNil[any]()
+
+			got, _ := v.Validate(testCase.t)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}

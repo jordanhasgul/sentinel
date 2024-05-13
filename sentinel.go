@@ -1,6 +1,8 @@
 package sentinel
 
 import (
+	"reflect"
+
 	"github.com/jordanhasgul/multierr"
 	"github.com/jordanhasgul/sentinel/constraints"
 )
@@ -125,4 +127,26 @@ func EqualFunc[T any](f func(T, T) bool, t2 T) Validator[T] {
 // where t1 is an instance of type T.
 func NotEqualFunc[T any](f func(T, T) bool, t2 T) Validator[T] {
 	return Not(EqualFunc[T](f, t2))
+}
+
+// Nil returns a Validator that returns true if T is nillable and t == nil,
+// where t is an instance of type T.
+func Nil[T any]() Validator[T] {
+	return ValidateFunc[T](func(t T) (bool, error) {
+		var (
+			value = reflect.ValueOf(t)
+			kind  = value.Kind()
+
+			nillable = kind == reflect.Ptr || kind == reflect.UnsafePointer ||
+				kind == reflect.Func || kind == reflect.Map || kind == reflect.Slice ||
+				kind == reflect.Chan || kind == reflect.Interface
+		)
+		return nillable && value.IsNil(), nil
+	})
+}
+
+// NotNil returns a Validator that returns true if T is nillable and
+// t != nil, where t is an instance of type T.
+func NotNil[T any]() Validator[T] {
+	return Not(Nil[T]())
 }
