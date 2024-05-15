@@ -269,6 +269,326 @@ func TestNotEqualFunc(t *testing.T) {
 	}
 }
 
+func TestLess(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t1 int
+		t2 int
+	}{
+		{
+			name: "0 < 0",
+			want: false,
+
+			t1: 0,
+			t2: 0,
+		},
+		{
+			name: "1 < 0",
+			want: false,
+
+			t1: 1,
+			t2: 0,
+		},
+		{
+			name: "0 < 1",
+			want: true,
+
+			t1: 0,
+			t2: 1,
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := Less(testCase.t2)
+
+			got, _ := v.Validate(testCase.t1)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}
+
+func TestLessFunc(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t1 []byte
+		t2 []byte
+	}{
+		{
+			name: "'test' < 'test'",
+			want: false,
+
+			t1: []byte("test"),
+			t2: []byte("test"),
+		},
+		{
+			name: "'tset' < 'test'",
+			want: false,
+
+			t1: []byte("tset"),
+			t2: []byte("test"),
+		},
+		{
+			name: "'test' < 'tset'",
+			want: true,
+
+			t1: []byte("test"),
+			t2: []byte("tset"),
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := LessFunc(bytes.Compare, testCase.t2)
+
+			got, _ := v.Validate(testCase.t1)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}
+
+func TestLessOrEqual(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t1 int
+		t2 int
+	}{
+		{
+			name: "0 <= 0",
+			want: true,
+
+			t1: 0,
+			t2: 0,
+		},
+		{
+			name: "1 <= 0",
+			want: false,
+
+			t1: 1,
+			t2: 0,
+		},
+		{
+			name: "0 <= 1",
+			want: true,
+
+			t1: 0,
+			t2: 1,
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := LessOrEqual(testCase.t2)
+
+			got, _ := v.Validate(testCase.t1)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}
+
+func TestLessOrEqualFunc(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t1 []byte
+		t2 []byte
+	}{
+		{
+			name: "'test' <= 'test'",
+			want: true,
+
+			t1: []byte("test"),
+			t2: []byte("test"),
+		},
+		{
+			name: "'tset' <= 'test'",
+			want: false,
+
+			t1: []byte("tset"),
+			t2: []byte("test"),
+		},
+		{
+			name: "'test' <= 'tset'",
+			want: true,
+
+			t1: []byte("test"),
+			t2: []byte("tset"),
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := LessOrEqualFunc(bytes.Compare, testCase.t2)
+
+			got, _ := v.Validate(testCase.t1)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}
+
+func TestGreater(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t1 int
+		t2 int
+	}{
+		{
+			name: "0 > 0",
+			want: false,
+
+			t1: 0,
+			t2: 0,
+		},
+		{
+			name: "1 > 0",
+			want: true,
+
+			t1: 1,
+			t2: 0,
+		},
+		{
+			name: "0 > 1",
+			want: false,
+
+			t1: 0,
+			t2: 1,
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := Greater(testCase.t2)
+
+			got, _ := v.Validate(testCase.t1)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}
+
+func TestGreaterFunc(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t1 []byte
+		t2 []byte
+	}{
+		{
+			name: "'test' > 'test'",
+			want: false,
+
+			t1: []byte("test"),
+			t2: []byte("test"),
+		},
+		{
+			name: "'tset' > 'test'",
+			want: true,
+
+			t1: []byte("tset"),
+			t2: []byte("test"),
+		},
+		{
+			name: "'test' > 'tset'",
+			want: false,
+
+			t1: []byte("test"),
+			t2: []byte("tset"),
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := GreaterFunc(bytes.Compare, testCase.t2)
+
+			got, _ := v.Validate(testCase.t1)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}
+
+func TestGreaterOrEqual(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t1 int
+		t2 int
+	}{
+		{
+			name: "0 >= 0",
+			want: true,
+
+			t1: 0,
+			t2: 0,
+		},
+		{
+			name: "1 >= 0",
+			want: true,
+
+			t1: 1,
+			t2: 0,
+		},
+		{
+			name: "0 >= 1",
+			want: false,
+
+			t1: 0,
+			t2: 1,
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := GreaterOrEqual(testCase.t2)
+
+			got, _ := v.Validate(testCase.t1)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}
+
+func TestGreaterOrEqualFunc(t *testing.T) {
+	testCases := []struct {
+		name string
+		want bool
+
+		t1 []byte
+		t2 []byte
+	}{
+		{
+			name: "'test' >= 'test'",
+			want: true,
+
+			t1: []byte("test"),
+			t2: []byte("test"),
+		},
+		{
+			name: "'tset' >= 'test'",
+			want: true,
+
+			t1: []byte("tset"),
+			t2: []byte("test"),
+		},
+		{
+			name: "'test' >= 'tset'",
+			want: false,
+
+			t1: []byte("test"),
+			t2: []byte("tset"),
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			v := GreaterOrEqualFunc(bytes.Compare, testCase.t2)
+
+			got, _ := v.Validate(testCase.t1)
+			require.Equal(t, testCase.want, got)
+		})
+	}
+}
+
 func TestNil(t *testing.T) {
 	testCases := []struct {
 		name string
@@ -298,7 +618,7 @@ func TestNil(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			v := Nil[any]()
-
+			
 			got, _ := v.Validate(testCase.t)
 			require.Equal(t, testCase.want, got)
 		})

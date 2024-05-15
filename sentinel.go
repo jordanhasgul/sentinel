@@ -129,6 +129,65 @@ func NotEqualFunc[T any](f func(T, T) bool, t2 T) Validator[T] {
 	return Not(EqualFunc[T](f, t2))
 }
 
+// Less returns a Validator that returns true if t1 < t2, where t1 is an
+// instance of type T.
+func Less[T constraints.Ordered](t2 T) Validator[T] {
+	return ValidateFunc[T](func(t1 T) (bool, error) {
+		return t1 < t2, nil
+	})
+}
+
+// LessFunc returns a Validator that returns true if f(t1, t2) < 0, where
+// t1 is an instance of type T.
+func LessFunc[T any](f func(T, T) int, t2 T) Validator[T] {
+	return ValidateFunc[T](func(t1 T) (bool, error) {
+		return f(t1, t2) < 0, nil
+	})
+}
+
+// LessOrEqual returns a Validator that returns true if t1 <= t2, where t1
+// is an instance of type T.
+func LessOrEqual[T constraints.Ordered](t2 T) Validator[T] {
+	return Or(Less[T](t2), Equal[T](t2))
+}
+
+// LessOrEqualFunc returns a Validator that returns true if f(t1, t2) <= 0,
+// where t1 is an instance of type T.
+func LessOrEqualFunc[T any](f func(T, T) int, t2 T) Validator[T] {
+	eq := func(a, b T) bool { return f(a, b) == 0 }
+	return Or(LessFunc[T](f, t2), EqualFunc[T](eq, t2))
+}
+
+// Greater returns a Validator that returns true if t1 > t2, where t1 is an
+// instance of type T.
+func Greater[T constraints.Ordered](t2 T) Validator[T] {
+	return ValidateFunc[T](func(t1 T) (bool, error) {
+		return t1 > t2, nil
+	})
+}
+
+// GreaterFunc returns a Validator that returns true if f(t1, t2) < 0,
+// where t1 is an instance of type T.
+func GreaterFunc[T any](f func(T, T) int, t2 T) Validator[T] {
+	return ValidateFunc[T](func(t1 T) (bool, error) {
+		return f(t1, t2) > 0, nil
+	})
+}
+
+// GreaterOrEqual returns a Validator that returns true if t1 >= t2, where
+// t1 is an instance of type T.
+func GreaterOrEqual[T constraints.Ordered](t2 T) Validator[T] {
+	return Or(Greater[T](t2), Equal[T](t2))
+}
+
+// GreaterOrEqualFunc returns a Validator that returns true if f(t1, t2) <= 0,
+//
+//	where t1 is an instance of type T.
+func GreaterOrEqualFunc[T any](f func(T, T) int, t2 T) Validator[T] {
+	eq := func(a, b T) bool { return f(a, b) == 0 }
+	return Or(GreaterFunc[T](f, t2), EqualFunc[T](eq, t2))
+}
+
 // Nil returns a Validator that returns true if T is nillable and t == nil,
 // where t is an instance of type T.
 func Nil[T any]() Validator[T] {
