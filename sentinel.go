@@ -111,9 +111,9 @@ func Equal[T constraints.Equated](t2 T) Validator[T] {
 
 // EqualFunc returns a Validator that returns true if f(t1, t2) == true,
 // where t1 is an instance of type T.
-func EqualFunc[T any](f func(T, T) bool, t2 T) Validator[T] {
+func EqualFunc[T any](eq func(T, T) bool, t2 T) Validator[T] {
 	return ValidateFunc[T](func(t1 T) (bool, error) {
-		return f(t1, t2), nil
+		return eq(t1, t2), nil
 	})
 }
 
@@ -125,8 +125,8 @@ func NotEqual[T constraints.Equated](t2 T) Validator[T] {
 
 // NotEqualFunc returns a Validator that returns true if f(t1, t2) != true,
 // where t1 is an instance of type T.
-func NotEqualFunc[T any](f func(T, T) bool, t2 T) Validator[T] {
-	return Not(EqualFunc[T](f, t2))
+func NotEqualFunc[T any](eq func(T, T) bool, t2 T) Validator[T] {
+	return Not(EqualFunc[T](eq, t2))
 }
 
 // Less returns a Validator that returns true if t1 < t2, where t1 is an
@@ -137,9 +137,9 @@ func Less[T constraints.Ordered](t2 T) Validator[T] {
 
 // LessFunc returns a Validator that returns true if f(t1, t2) < 0, where
 // t1 is an instance of type T.
-func LessFunc[T any](f func(T, T) int, t2 T) Validator[T] {
+func LessFunc[T any](cmp func(T, T) int, t2 T) Validator[T] {
 	return ValidateFunc[T](func(t1 T) (bool, error) {
-		return f(t1, t2) < 0, nil
+		return cmp(t1, t2) < 0, nil
 	})
 }
 
@@ -151,9 +151,9 @@ func LessOrEqual[T constraints.Ordered](t2 T) Validator[T] {
 
 // LessOrEqualFunc returns a Validator that returns true if f(t1, t2) <= 0,
 // where t1 is an instance of type T.
-func LessOrEqualFunc[T any](f func(T, T) int, t2 T) Validator[T] {
-	eq := func(a, b T) bool { return f(a, b) == 0 }
-	return Or(LessFunc[T](f, t2), EqualFunc[T](eq, t2))
+func LessOrEqualFunc[T any](cmp func(T, T) int, t2 T) Validator[T] {
+	eq := func(a, b T) bool { return cmp(a, b) == 0 }
+	return Or(LessFunc[T](cmp, t2), EqualFunc[T](eq, t2))
 }
 
 // Greater returns a Validator that returns true if t1 > t2, where t1 is an
@@ -164,9 +164,9 @@ func Greater[T constraints.Ordered](t2 T) Validator[T] {
 
 // GreaterFunc returns a Validator that returns true if f(t1, t2) > 0,
 // where t1 is an instance of type T.
-func GreaterFunc[T any](f func(T, T) int, t2 T) Validator[T] {
+func GreaterFunc[T any](cmp func(T, T) int, t2 T) Validator[T] {
 	return ValidateFunc[T](func(t1 T) (bool, error) {
-		return f(t1, t2) > 0, nil
+		return cmp(t1, t2) > 0, nil
 	})
 }
 
@@ -178,9 +178,9 @@ func GreaterOrEqual[T constraints.Ordered](t2 T) Validator[T] {
 
 // GreaterOrEqualFunc returns a Validator that returns true if f(t1, t2) >= 0,
 // where t1 is an instance of type T.
-func GreaterOrEqualFunc[T any](f func(T, T) int, t2 T) Validator[T] {
-	eq := func(a, b T) bool { return f(a, b) == 0 }
-	return Or(GreaterFunc[T](f, t2), EqualFunc[T](eq, t2))
+func GreaterOrEqualFunc[T any](cmp func(T, T) int, t2 T) Validator[T] {
+	eq := func(a, b T) bool { return cmp(a, b) == 0 }
+	return Or(GreaterFunc[T](cmp, t2), EqualFunc[T](eq, t2))
 }
 
 // Nil returns a Validator that returns true if T is nillable and t == nil,
