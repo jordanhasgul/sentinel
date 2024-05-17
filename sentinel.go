@@ -1,6 +1,7 @@
 package sentinel
 
 import (
+	"cmp"
 	"reflect"
 
 	"github.com/jordanhasgul/multierr"
@@ -104,15 +105,8 @@ func WithValue[T, U any](f func(T) U, v Validator[U]) Validator[T] {
 // Equal returns a Validator that returns true if t1 == t2, where t1 is an
 // instance of type T.
 func Equal[T constraints.Equated](t2 T) Validator[T] {
-	return ValidateFunc[T](func(t1 T) (bool, error) {
-		return t1 == t2, nil
-	})
-}
-
-// NotEqual returns a Validator that returns true if t1 != t2, where t1 is
-// an instance of type T.
-func NotEqual[T constraints.Equated](t2 T) Validator[T] {
-	return Not(Equal[T](t2))
+	eq := func(a, b T) bool { return a == b }
+	return EqualFunc(eq, t2)
 }
 
 // EqualFunc returns a Validator that returns true if f(t1, t2) == true,
@@ -121,6 +115,12 @@ func EqualFunc[T any](f func(T, T) bool, t2 T) Validator[T] {
 	return ValidateFunc[T](func(t1 T) (bool, error) {
 		return f(t1, t2), nil
 	})
+}
+
+// NotEqual returns a Validator that returns true if t1 != t2, where t1 is
+// an instance of type T.
+func NotEqual[T constraints.Equated](t2 T) Validator[T] {
+	return Not(Equal[T](t2))
 }
 
 // NotEqualFunc returns a Validator that returns true if f(t1, t2) != true,
@@ -132,9 +132,7 @@ func NotEqualFunc[T any](f func(T, T) bool, t2 T) Validator[T] {
 // Less returns a Validator that returns true if t1 < t2, where t1 is an
 // instance of type T.
 func Less[T constraints.Ordered](t2 T) Validator[T] {
-	return ValidateFunc[T](func(t1 T) (bool, error) {
-		return t1 < t2, nil
-	})
+	return LessFunc(cmp.Compare[T], t2)
 }
 
 // LessFunc returns a Validator that returns true if f(t1, t2) < 0, where
@@ -161,12 +159,10 @@ func LessOrEqualFunc[T any](f func(T, T) int, t2 T) Validator[T] {
 // Greater returns a Validator that returns true if t1 > t2, where t1 is an
 // instance of type T.
 func Greater[T constraints.Ordered](t2 T) Validator[T] {
-	return ValidateFunc[T](func(t1 T) (bool, error) {
-		return t1 > t2, nil
-	})
+	return GreaterFunc(cmp.Compare[T], t2)
 }
 
-// GreaterFunc returns a Validator that returns true if f(t1, t2) < 0,
+// GreaterFunc returns a Validator that returns true if f(t1, t2) > 0,
 // where t1 is an instance of type T.
 func GreaterFunc[T any](f func(T, T) int, t2 T) Validator[T] {
 	return ValidateFunc[T](func(t1 T) (bool, error) {
@@ -180,9 +176,8 @@ func GreaterOrEqual[T constraints.Ordered](t2 T) Validator[T] {
 	return Or(Greater[T](t2), Equal[T](t2))
 }
 
-// GreaterOrEqualFunc returns a Validator that returns true if f(t1, t2) <= 0,
-//
-//	where t1 is an instance of type T.
+// GreaterOrEqualFunc returns a Validator that returns true if f(t1, t2) >= 0,
+// where t1 is an instance of type T.
 func GreaterOrEqualFunc[T any](f func(T, T) int, t2 T) Validator[T] {
 	eq := func(a, b T) bool { return f(a, b) == 0 }
 	return Or(GreaterFunc[T](f, t2), EqualFunc[T](eq, t2))
