@@ -638,13 +638,13 @@ func TestNotNil(t *testing.T) {
 			t: 1,
 		},
 		{
-			name: "nillable type non-nil value",
+			name: "nillable type with non-nil value",
 			want: true,
 
 			t: []int{1},
 		},
 		{
-			name: "nillable type nil value",
+			name: "nillable type with nil value",
 			want: false,
 
 			t: []int(nil),
