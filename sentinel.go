@@ -2,6 +2,7 @@ package sentinel
 
 import (
 	"cmp"
+	"fmt"
 	"reflect"
 
 	"github.com/jordanhasgul/multierr"
@@ -42,8 +43,9 @@ func WithValues[T, U any](f, g func(T) U, h func(U) Validator[U]) Validator[T] {
 func Not[T any](v Validator[T]) Validator[T] {
 	return ValidateFunc[T](func(t T) (bool, error) {
 		ok, err := v.Validate(t)
-		if ok || err != nil {
-			return false, err
+		if ok && err == nil {
+			errString := "not-ing: %w"
+			return false, fmt.Errorf(errString, err)
 		}
 
 		return true, nil
@@ -58,13 +60,14 @@ func And[T any](vs ...Validator[T]) Validator[T] {
 	return ValidateFunc[T](func(t T) (bool, error) {
 		var e *multierr.Error
 		for _, v := range vs {
-			ok, err := v.Validate(t)
-			if !ok || err != nil {
+			_, err := v.Validate(t)
+			if err != nil {
 				e = multierr.Append(e, err)
 			}
 		}
 		if e.Len() != 0 {
-			return false, e
+			errString := "and-ing: %w"
+			return false, fmt.Errorf(errString, e)
 		}
 
 		return true, nil
@@ -79,13 +82,14 @@ func Or[T any](vs ...Validator[T]) Validator[T] {
 	return ValidateFunc[T](func(t T) (bool, error) {
 		var e *multierr.Error
 		for _, v := range vs {
-			ok, err := v.Validate(t)
-			if !ok || err != nil {
+			_, err := v.Validate(t)
+			if err != nil {
 				e = multierr.Append(e, err)
 			}
 		}
 		if e.Len() == len(vs) {
-			return false, e
+			errString := "or-ing: %w"
+			return false, fmt.Errorf(errString, e)
 		}
 
 		return true, nil
@@ -104,7 +108,8 @@ func Valid[T any]() Validator[T] {
 // instances of T.
 func Invalid[T any]() Validator[T] {
 	return ValidateFunc[T](func(t T) (bool, error) {
-		return false, nil
+		errString := "'%#v' of type '%s' is always invalid"
+		return false, fmt.Errorf(errString, t, reflect.TypeOf(t))
 	})
 }
 
@@ -118,7 +123,12 @@ func Equal[T constraints.Equated](t2 T) Validator[T] {
 func EqualFunc[T any](eq func(T, T) bool) func(T) Validator[T] {
 	return func(t2 T) Validator[T] {
 		return ValidateFunc[T](func(t1 T) (bool, error) {
-			return eq(t1, t2), nil
+			if !eq(t1, t2) {
+				errString := "'%#v' is not equal to '%#v' (both of type '%s')"
+				return false, fmt.Errorf(errString, t1, t2, reflect.TypeOf(t1))
+			}
+
+			return true, nil
 		})
 	}
 }
@@ -144,7 +154,12 @@ func Less[T constraints.Ordered](t2 T) Validator[T] {
 func LessFunc[T any](cmp func(T, T) int) func(T) Validator[T] {
 	return func(t2 T) Validator[T] {
 		return ValidateFunc[T](func(t1 T) (bool, error) {
-			return cmp(t1, t2) < 0, nil
+			if !(cmp(t1, t2) < 0) {
+				errString := "'%#v' is not less than '%#v' (both of type '%s')"
+				return false, fmt.Errorf(errString, t1, t2, reflect.TypeOf(t1))
+			}
+
+			return true, nil
 		})
 	}
 }
@@ -171,7 +186,12 @@ func Greater[T constraints.Ordered](t2 T) Validator[T] {
 func GreaterFunc[T any](cmp func(T, T) int) func(T) Validator[T] {
 	return func(t2 T) Validator[T] {
 		return ValidateFunc[T](func(t1 T) (bool, error) {
-			return cmp(t1, t2) > 0, nil
+			if !(cmp(t1, t2) > 0) {
+				errString := "'%#v' is not greater than '%#v' (both of type '%s')"
+				return false, fmt.Errorf(errString, t1, t2, reflect.TypeOf(t1))
+			}
+
+			return true, nil
 		})
 	}
 }
@@ -201,7 +221,12 @@ func Nil[T any]() Validator[T] {
 				kind == reflect.Func || kind == reflect.Map || kind == reflect.Slice ||
 				kind == reflect.Chan || kind == reflect.Interface
 		)
-		return nillable && value.IsNil(), nil
+		if !nillable || !value.IsNil() {
+			errString := "'%#v' of type '%s' is not nil"
+			return false, fmt.Errorf(errString, t, reflect.TypeOf(value))
+		}
+
+		return true, nil
 	})
 }
 
