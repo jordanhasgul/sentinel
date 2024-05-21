@@ -2,9 +2,8 @@ package sentinel
 
 import (
 	"bytes"
-	"testing"
-
 	"github.com/stretchr/testify/require"
+	"testing"
 )
 
 func TestValid(t *testing.T) {
@@ -228,7 +227,7 @@ func TestEqualFunc(t *testing.T) {
 	}
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			v := EqualFunc(bytes.Equal, testCase.t2)
+			v := EqualFunc(bytes.Equal)(testCase.t2)
 
 			got, _ := v.Validate(testCase.t1)
 			require.Equal(t, testCase.want, got)
@@ -261,7 +260,7 @@ func TestNotEqualFunc(t *testing.T) {
 	}
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			v := NotEqualFunc(bytes.Equal, testCase.t2)
+			v := NotEqualFunc(bytes.Equal)(testCase.t2)
 
 			got, _ := v.Validate(testCase.t1)
 			require.Equal(t, testCase.want, got)
@@ -341,7 +340,7 @@ func TestLessFunc(t *testing.T) {
 	}
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			v := LessFunc(bytes.Compare, testCase.t2)
+			v := LessFunc(bytes.Compare)(testCase.t2)
 
 			got, _ := v.Validate(testCase.t1)
 			require.Equal(t, testCase.want, got)
@@ -421,7 +420,7 @@ func TestLessOrEqualFunc(t *testing.T) {
 	}
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			v := LessOrEqualFunc(bytes.Compare, testCase.t2)
+			v := LessOrEqualFunc(bytes.Compare)(testCase.t2)
 
 			got, _ := v.Validate(testCase.t1)
 			require.Equal(t, testCase.want, got)
@@ -501,7 +500,7 @@ func TestGreaterFunc(t *testing.T) {
 	}
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			v := GreaterFunc(bytes.Compare, testCase.t2)
+			v := GreaterFunc(bytes.Compare)(testCase.t2)
 
 			got, _ := v.Validate(testCase.t1)
 			require.Equal(t, testCase.want, got)
@@ -581,7 +580,7 @@ func TestGreaterOrEqualFunc(t *testing.T) {
 	}
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			v := GreaterOrEqualFunc(bytes.Compare, testCase.t2)
+			v := GreaterOrEqualFunc(bytes.Compare)(testCase.t2)
 
 			got, _ := v.Validate(testCase.t1)
 			require.Equal(t, testCase.want, got)
@@ -618,7 +617,7 @@ func TestNil(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			v := Nil[any]()
-			
+
 			got, _ := v.Validate(testCase.t)
 			require.Equal(t, testCase.want, got)
 		})
