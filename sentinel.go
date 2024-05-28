@@ -53,7 +53,7 @@ func Not[T any](v Validator[T]) ValidateFunc[T] {
 // return true when validating instances of T.
 func And[T any](vs ...Validator[T]) ValidateFunc[T] {
 	if len(vs) < 2 {
-		panicStr := "sentinel: 'And' must be called with at least 2 validators but was given %d."
+		panicStr := "sentinel: 'And' must be called with at least 2 validators but was given %d"
 		panic(fmt.Sprintf(panicStr, len(vs)))
 	}
 
@@ -78,7 +78,7 @@ func And[T any](vs ...Validator[T]) ValidateFunc[T] {
 // return true when validating instances of T.
 func Or[T any](vs ...Validator[T]) ValidateFunc[T] {
 	if len(vs) < 2 {
-		panicStr := "sentinel: 'Or' must be called with at least 2 validators but was given %d."
+		panicStr := "sentinel: 'Or' must be called with at least 2 validators but was given %d"
 		panic(fmt.Sprintf(panicStr, len(vs)))
 	}
 
