@@ -39,11 +39,10 @@ func WithValues[T, U any](f, g func(T) U, h func(U) Validator[U]) ValidateFunc[T
 // instances of T.
 func Not[T any](v Validator[T]) ValidateFunc[T] {
 	return func(t T) (bool, error) {
-		ok, err := v.Validate(t)
-		if ok && err == nil {
-			// todo: fix loss of error info here
-			errString := "not-ing: %w"
-			return false, fmt.Errorf(errString, err)
+		_, err := v.Validate(t)
+		if err == nil {
+			errorStr := "not-ing: %s"
+			return false, fmt.Errorf(errorStr, "")
 		}
 
 		return true, nil
@@ -53,7 +52,10 @@ func Not[T any](v Validator[T]) ValidateFunc[T] {
 // And returns a Validator that returns true if all the validators in vs
 // return true when validating instances of T.
 func And[T any](vs ...Validator[T]) ValidateFunc[T] {
-	// todo: what if len(vs) < 2
+	if len(vs) < 2 {
+		panicStr := "sentinel: 'And' must be called with at least 2 validators but was given %d."
+		panic(fmt.Sprintf(panicStr, len(vs)))
+	}
 
 	return func(t T) (bool, error) {
 		var e *multierr.Error
@@ -64,8 +66,8 @@ func And[T any](vs ...Validator[T]) ValidateFunc[T] {
 			}
 		}
 		if e.Len() != 0 {
-			errString := "and-ing: %w"
-			return false, fmt.Errorf(errString, e)
+			errorStr := "and-ing: %w"
+			return false, fmt.Errorf(errorStr, e)
 		}
 
 		return true, nil
@@ -75,7 +77,10 @@ func And[T any](vs ...Validator[T]) ValidateFunc[T] {
 // Or returns a Validator that returns true if any of the validators in vs
 // return true when validating instances of T.
 func Or[T any](vs ...Validator[T]) ValidateFunc[T] {
-	// todo: what if len(vs) < 2
+	if len(vs) < 2 {
+		panicStr := "sentinel: 'Or' must be called with at least 2 validators but was given %d."
+		panic(fmt.Sprintf(panicStr, len(vs)))
+	}
 
 	return func(t T) (bool, error) {
 		var e *multierr.Error
@@ -86,8 +91,8 @@ func Or[T any](vs ...Validator[T]) ValidateFunc[T] {
 			}
 		}
 		if e.Len() == len(vs) {
-			errString := "or-ing: %w"
-			return false, fmt.Errorf(errString, e)
+			errorStr := "or-ing: %w"
+			return false, fmt.Errorf(errorStr, e)
 		}
 
 		return true, nil

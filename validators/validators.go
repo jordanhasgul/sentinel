@@ -21,8 +21,8 @@ func Valid[T any]() sentinel.ValidateFunc[T] {
 // instances of T.
 func Invalid[T any]() sentinel.ValidateFunc[T] {
 	return func(t T) (bool, error) {
-		errString := "'%#v' of type '%s' is always invalid"
-		return false, fmt.Errorf(errString, t, reflect.TypeOf(t))
+		errorStr := "'%#v' of type '%s' is always invalid"
+		return false, fmt.Errorf(errorStr, t, reflect.TypeOf(t))
 	}
 }
 
@@ -39,8 +39,8 @@ func EqualFunc[T any](eq func(T, T) bool) func(T) sentinel.ValidateFunc[T] {
 	return func(t2 T) sentinel.ValidateFunc[T] {
 		return func(t1 T) (bool, error) {
 			if !eq(t1, t2) {
-				errString := "'%#v' is not equal to '%#v' (both of type '%s')"
-				return false, fmt.Errorf(errString, t1, t2, reflect.TypeOf(t1))
+				errorStr := "'%#v' is not equal to '%#v' (both of type '%s')"
+				return false, fmt.Errorf(errorStr, t1, t2, reflect.TypeOf(t1))
 			}
 
 			return true, nil
@@ -70,8 +70,8 @@ func LessFunc[T any](cmp func(T, T) int) func(T) sentinel.ValidateFunc[T] {
 	return func(t2 T) sentinel.ValidateFunc[T] {
 		return func(t1 T) (bool, error) {
 			if !(cmp(t1, t2) < 0) {
-				errString := "'%#v' is not less than '%#v' (both of type '%s')"
-				return false, fmt.Errorf(errString, t1, t2, reflect.TypeOf(t1))
+				errorStr := "'%#v' is not less than '%#v' (both of type '%s')"
+				return false, fmt.Errorf(errorStr, t1, t2, reflect.TypeOf(t1))
 			}
 
 			return true, nil
@@ -110,8 +110,8 @@ func GreaterFunc[T any](cmp func(T, T) int) func(T) sentinel.ValidateFunc[T] {
 	return func(t2 T) sentinel.ValidateFunc[T] {
 		return func(t1 T) (bool, error) {
 			if !(cmp(t1, t2) > 0) {
-				errString := "'%#v' is not greater than '%#v' (both of type '%s')"
-				return false, fmt.Errorf(errString, t1, t2, reflect.TypeOf(t1))
+				errorStr := "'%#v' is not greater than '%#v' (both of type '%s')"
+				return false, fmt.Errorf(errorStr, t1, t2, reflect.TypeOf(t1))
 			}
 
 			return true, nil
@@ -153,8 +153,8 @@ func Nil[T any]() sentinel.ValidateFunc[T] {
 				kind == reflect.Chan || kind == reflect.Interface
 		)
 		if !nillable || !value.IsNil() {
-			errString := "'%#v' of type '%s' is not nil"
-			return false, fmt.Errorf(errString, t, reflect.TypeOf(value))
+			errorStr := "'%#v' of type '%s' is not nil"
+			return false, fmt.Errorf(errorStr, t, reflect.TypeOf(value))
 		}
 
 		return true, nil
